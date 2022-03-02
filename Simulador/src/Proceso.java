@@ -11,7 +11,7 @@ import javax.swing.JLabel;
  * @author HP15DA0023LA
  */
 public class Proceso extends JLabel{
-    private Integer tamaño, tiempo, min, max;
+    private Integer tamaño, tiempo, min, max,processID;
     private String hexadecimal;
 
     public Proceso(Integer min) {
@@ -45,6 +45,14 @@ public class Proceso extends JLabel{
         return tiempo;
     }
 
+    public Integer getProcessID() {
+        return processID;
+    }
+
+    public void setProcessID(Integer processID) {
+        this.processID = processID;
+    }
+    
     public Integer getTamaño() {
         return tamaño;
     }

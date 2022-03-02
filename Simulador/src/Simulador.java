@@ -6,11 +6,15 @@ import java.awt.Image;
 import java.awt.Toolkit;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.Border;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -24,6 +28,12 @@ import javax.swing.JPanel;
  */
 public class Simulador extends javax.swing.JFrame {
      ImagenFondo fondo = new ImagenFondo();
+     ArrayList<Proceso> listaProcesos = new ArrayList();
+     Border border = BorderFactory.createLineBorder(Color.ORANGE);
+     Border borderM = BorderFactory.createLineBorder(Color.WHITE);
+     int nuevaPosición=350; //este es el punto inicial de altura donde spamean los cuadraditos
+     Integer processID=0;
+     JLabel memoriaPrincipal = new JLabel("");
     /**
      * Creates new form Simulador
      */
@@ -43,6 +53,9 @@ public class Simulador extends javax.swing.JFrame {
        HiloHora hilohora = new HiloHora();
        hilohora.startRunning();
        hilohora.start();
+       memoriaPrincipal.setBounds(200,100, 80, 250);
+       this.jPanel1.add(memoriaPrincipal);
+       memoriaPrincipal.setBorder(borderM);
     }
 public String ObtenerHora(){
     DateTimeFormatter formato = DateTimeFormatter.ofPattern("HH:mm:ss");
@@ -195,12 +208,11 @@ public String ObtenerHora(){
             .addGroup(panelProcesadorLayout.createSequentialGroup()
                 .addContainerGap()
                 .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(panelProcesadorLayout.createSequentialGroup()
-                        .addComponent(jScrollPane1)
-                        .addContainerGap())
+                    .addComponent(jScrollPane1)
                     .addGroup(panelProcesadorLayout.createSequentialGroup()
                         .addComponent(jLabel7)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addGap(0, 0, Short.MAX_VALUE)))
+                .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelProcesadorLayout.createSequentialGroup()
                 .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(panelProcesadorLayout.createSequentialGroup()
@@ -314,7 +326,17 @@ public String ObtenerHora(){
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
+        Proceso pr= new Proceso(0); // aquí debería ir el actual que vas a agregar Diego, en lugar de cero.
+        pr.setProcessID(processID); // con este podemos avanzar entre procesos 
+        // y si toca eliminar uno solo buscamos en la lista cual processID es igual y lo sacamos, 
+        // luego cambiamso los demás process Id de la lista (los que van despues del que sacamos) y  ya
+        this.listaProcesos.add(pr);
+        JLabel y = new JLabel("ProcessID: "+processID.toString());
+        nuevaPosición=nuevaPosición-listaProcesos.get(processID).getTamañoEnPix();
+        y.setBounds(200,nuevaPosición, 80, listaProcesos.get(processID).getTamañoEnPix());
+        this.jPanel1.add(y);
+        y.setBorder(border);
+        processID++;
     }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
@@ -398,3 +420,4 @@ class ImagenRobot extends JPanel{
         }
     }
 }
+// cuando se vaya a eliminar un proceso solo crear una label identica al proceso pero sin texto y con bordes blancos
