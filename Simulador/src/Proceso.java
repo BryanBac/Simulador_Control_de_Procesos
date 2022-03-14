@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JLabel;
 
 /**
@@ -13,10 +15,18 @@ import javax.swing.JLabel;
 public class Proceso extends JLabel{
     private Integer tamaño, tiempo, min, max,processID;
     private String hexadecimal;
+    private int posicion;
+   private boolean ignorar = false;
+    public int getPosicion() {
+        return posicion;
+    }
 
+    public void setPosicion(int posicion) {
+        this.posicion = posicion;
+    }
     public Proceso(Integer min) {
-        // los procesos van de 1 ms a 20 ms
-        this.tiempo = (int)(Math.random()*20.0+1.0);
+        // los procesos van de 6 ms a 20 ms
+        this.tiempo = (int)(Math.random()*20.0+6.0);
         this.tamaño = tiempo*50; // el tamaño va a ser en MB y el maximo de la memoria principal es de 4 GB
         this.hexadecimal= Integer.toHexString(this.tamaño);
         this.min=min;
