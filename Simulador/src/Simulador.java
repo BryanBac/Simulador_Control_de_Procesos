@@ -13,6 +13,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
@@ -445,7 +446,7 @@ public String ObtenerHora(){
             processIDIndividual++;
         }
         else{
-            
+            JOptionPane.showMessageDialog(this, "ERROR");
         }
         
         
