@@ -29,10 +29,12 @@ import javax.swing.border.Border;
 public class Simulador extends javax.swing.JFrame {
      ImagenFondo fondo = new ImagenFondo();
      ArrayList<Proceso> listaProcesos = new ArrayList();
+     ArrayList<JLabel> listaLabel = new ArrayList();
      Border border = BorderFactory.createLineBorder(Color.ORANGE);
      Border borderM = BorderFactory.createLineBorder(Color.WHITE);
      int nuevaPosición=350; //este es el punto inicial de altura donde spamean los cuadraditos
      Integer processID=0;
+     Integer processIDIndividual=0;
      JLabel memoriaPrincipal = new JLabel("");
     /**
      * Creates new form Simulador
@@ -70,10 +72,6 @@ public String ObtenerHora(){
         public void stopRunning(){
             run = false;
         }
-        public int getRandom(){
-            int random = (int) (Math.random() * (3+1));
-            return random;
-        }
         @Override
         public void run(){
             while(run){
@@ -92,6 +90,15 @@ public String ObtenerHora(){
                 }
         }
  }
+ public void Eliminar(int ID){
+    JLabel x = listaLabel.get(ID);//Obtiene el JLabel del proceso, de la lista de JLabels
+    x.setBounds(200, listaProcesos.get(ID).getPosicion(), 80, listaProcesos.get(ID).getTamañoEnPix());
+    System.out.println("Componente: " + x.getText());//Muestra el nombre del proceso a eliminar --> esto luego se puede eliminar mientras es solo
+    //para comprobación, porque al final esto se refleja en el historial
+    this.jPanel1.remove(x);//Finalmente se elimina de la memoria principal el proceso
+    this.historial.setText(this.historial.getText()+"P"+ID+ " finalizado a las " + this.ObtenerHora()+ " hrs\n");
+    processID--;
+ }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -102,12 +109,9 @@ public String ObtenerHora(){
     private void initComponents() {
 
         jButton1 = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
-        HoraSistema = new javax.swing.JLabel();
-        jLabel2 = new javax.swing.JLabel();
-        jLabel8 = new javax.swing.JLabel();
         jPanel1 = new ImagenRobot();
         jLabel9 = new javax.swing.JLabel();
+        jLabel8 = new javax.swing.JLabel();
         panelProcesador = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -116,14 +120,18 @@ public String ObtenerHora(){
         jLabel4 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
         jLabel7 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        jTextPane1 = new javax.swing.JTextPane();
         jScrollPane6 = new javax.swing.JScrollPane();
         jTextPane6 = new javax.swing.JTextPane();
         jScrollPane7 = new javax.swing.JScrollPane();
         jTextPane7 = new javax.swing.JTextPane();
         jScrollPane8 = new javax.swing.JScrollPane();
         jTextPane8 = new javax.swing.JTextPane();
+        jScrollPane3 = new javax.swing.JScrollPane();
+        historial = new javax.swing.JTextArea();
+        jLabel1 = new javax.swing.JLabel();
+        HoraSistema = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -138,24 +146,12 @@ public String ObtenerHora(){
             }
         });
 
-        jLabel1.setFont(new java.awt.Font("Calibri Light", 1, 14)); // NOI18N
-        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel1.setText("Hora del sistema");
-
-        HoraSistema.setFont(new java.awt.Font("Calibri Light", 0, 14)); // NOI18N
-        HoraSistema.setForeground(new java.awt.Color(255, 255, 255));
-        HoraSistema.setText("   ");
-
-        jLabel2.setFont(new java.awt.Font("Calibri Light", 1, 14)); // NOI18N
-        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel2.setText("Procesador");
+        jLabel9.setFont(new java.awt.Font("Calibri Light", 0, 14)); // NOI18N
+        jLabel9.setText("Activador");
 
         jLabel8.setFont(new java.awt.Font("Calibri Light", 1, 14)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setText("Memoria principal");
-
-        jLabel9.setFont(new java.awt.Font("Calibri Light", 0, 14)); // NOI18N
-        jLabel9.setText("Activador");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -165,13 +161,18 @@ public String ObtenerHora(){
                 .addGap(188, 188, 188)
                 .addComponent(jLabel9, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGap(84, 84, 84))
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(jLabel8)
+                .addGap(55, 55, 55))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGap(22, 22, 22)
+                .addComponent(jLabel8)
+                .addGap(4, 4, 4)
                 .addComponent(jLabel9)
-                .addContainerGap(386, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         panelProcesador.setBackground(new java.awt.Color(153, 153, 255));
@@ -193,26 +194,32 @@ public String ObtenerHora(){
         jLabel7.setFont(new java.awt.Font("Calibri Light", 0, 14)); // NOI18N
         jLabel7.setText("Historial");
 
-        jScrollPane1.setViewportView(jTextPane1);
-
         jScrollPane6.setViewportView(jTextPane6);
 
         jScrollPane7.setViewportView(jTextPane7);
 
         jScrollPane8.setViewportView(jTextPane8);
 
+        historial.setColumns(20);
+        historial.setRows(5);
+        jScrollPane3.setViewportView(historial);
+
+        jLabel1.setFont(new java.awt.Font("Calibri Light", 1, 14)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel1.setText("Hora del sistema");
+
+        HoraSistema.setFont(new java.awt.Font("Calibri Light", 0, 14)); // NOI18N
+        HoraSistema.setForeground(new java.awt.Color(255, 255, 255));
+        HoraSistema.setText("   ");
+
+        jLabel2.setFont(new java.awt.Font("Calibri Light", 1, 14)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel2.setText("Procesador");
+
         javax.swing.GroupLayout panelProcesadorLayout = new javax.swing.GroupLayout(panelProcesador);
         panelProcesador.setLayout(panelProcesadorLayout);
         panelProcesadorLayout.setHorizontalGroup(
             panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelProcesadorLayout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jScrollPane1)
-                    .addGroup(panelProcesadorLayout.createSequentialGroup()
-                        .addComponent(jLabel7)
-                        .addGap(0, 0, Short.MAX_VALUE)))
-                .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelProcesadorLayout.createSequentialGroup()
                 .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(panelProcesadorLayout.createSequentialGroup()
@@ -227,20 +234,41 @@ public String ObtenerHora(){
                             .addComponent(jScrollPane8)))
                     .addGroup(panelProcesadorLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
-                        .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel3))))
+                        .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel2)
+                            .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel3)))))
                 .addGap(80, 80, 80))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelProcesadorLayout.createSequentialGroup()
                 .addGap(0, 64, Short.MAX_VALUE)
                 .addComponent(jLabel5)
                 .addGap(59, 59, 59))
+            .addGroup(panelProcesadorLayout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jScrollPane3)
+                .addContainerGap())
+            .addGroup(panelProcesadorLayout.createSequentialGroup()
+                .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(panelProcesadorLayout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel7))
+                    .addGroup(panelProcesadorLayout.createSequentialGroup()
+                        .addGap(75, 75, 75)
+                        .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(panelProcesadorLayout.createSequentialGroup()
+                                .addGap(10, 10, 10)
+                                .addComponent(HoraSistema, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addComponent(jLabel1))))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelProcesadorLayout.setVerticalGroup(
             panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelProcesadorLayout.createSequentialGroup()
                 .addContainerGap()
+                .addComponent(jLabel2)
+                .addGap(30, 30, 30)
                 .addComponent(jLabel3)
                 .addGap(1, 1, 1)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -259,67 +287,55 @@ public String ObtenerHora(){
                     .addGroup(panelProcesadorLayout.createSequentialGroup()
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel7)
-                .addGap(11, 11, 11)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 133, Short.MAX_VALUE)
-                .addContainerGap())
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.PREFERRED_SIZE, 153, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(HoraSistema)
+                .addGap(24, 24, 24))
         );
+
+        jButton2.setText("Eliminar (mientras)");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(149, 149, 149)
-                .addComponent(jLabel8)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(jLabel2)
-                .addGap(117, 117, 117))
-            .addGroup(layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButton1)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButton1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(panelProcesador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addContainerGap(20, Short.MAX_VALUE))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addGap(0, 0, Short.MAX_VALUE)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(10, 10, 10)
-                                .addComponent(HoraSistema, javax.swing.GroupLayout.PREFERRED_SIZE, 75, javax.swing.GroupLayout.PREFERRED_SIZE))
-                            .addComponent(jLabel1))
-                        .addGap(105, 105, 105))))
+                        .addGap(34, 34, 34)
+                        .addComponent(jButton2)))
+                .addGap(10, 10, 10)
+                .addComponent(panelProcesador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(20, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(26, 26, 26)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel2)
-                    .addComponent(jLabel8))
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 20, Short.MAX_VALUE)
-                        .addComponent(panelProcesador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(18, 18, 18)
-                        .addComponent(jLabel1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(HoraSistema))
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(layout.createSequentialGroup()
-                                .addGap(115, 115, 115)
-                                .addComponent(jButton1))
-                            .addGroup(layout.createSequentialGroup()
-                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                                .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                        .addGap(0, 0, Short.MAX_VALUE)))
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(panelProcesador, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
                 .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                .addContainerGap(221, Short.MAX_VALUE)
+                .addComponent(jButton1)
+                .addGap(18, 18, 18)
+                .addComponent(jButton2)
+                .addGap(212, 212, 212))
         );
 
         pack();
@@ -327,17 +343,30 @@ public String ObtenerHora(){
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         Proceso pr= new Proceso(0); // aquí debería ir el actual que vas a agregar Diego, en lugar de cero.
-        pr.setProcessID(processID); // con este podemos avanzar entre procesos 
-        // y si toca eliminar uno solo buscamos en la lista cual processID es igual y lo sacamos, 
+        pr.setProcessID(processIDIndividual);
+        // y si toca eliminar uno solo buscamos en la lista cual processID es igual y lo sacamos,
+        //Actualizar el contador
         // luego cambiamso los demás process Id de la lista (los que van despues del que sacamos) y  ya
         this.listaProcesos.add(pr);
-        JLabel y = new JLabel("ProcessID: "+processID.toString());
+        JLabel y = new JLabel("ProcessID: "+processIDIndividual.toString());
         nuevaPosición=nuevaPosición-listaProcesos.get(processID).getTamañoEnPix();
         y.setBounds(200,nuevaPosición, 80, listaProcesos.get(processID).getTamañoEnPix());
         this.jPanel1.add(y);
         y.setBorder(border);
+        listaLabel.add(y);
+        listaProcesos.get(processID).setPosicion(nuevaPosición+listaProcesos.get(processID).getTamañoEnPix());
+        //Registra en el historial
+        this.historial.setText(this.historial.getText()+"P"+processIDIndividual+ " creado a las " + this.ObtenerHora()+ " hrs\n");
         processID++;
+        processIDIndividual++;
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+        this.Eliminar(3);//El botón al final se debe eliminar, esto solomente se implemento temporalmente
+        //la funcionalidad de "Eliminar" se verá en el algoritmo, el cual controlará si el proceso ya finalizo y 
+        //en caso de ser afirmativo, es que se hará uso del método, enviandole el ID del proceso a eliminar
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -376,7 +405,9 @@ public String ObtenerHora(){
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel HoraSistema;
+    private javax.swing.JTextArea historial;
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -387,12 +418,11 @@ public String ObtenerHora(){
     private javax.swing.JLabel jLabel8;
     private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JScrollPane jScrollPane3;
     private javax.swing.JScrollPane jScrollPane6;
     private javax.swing.JScrollPane jScrollPane7;
     private javax.swing.JScrollPane jScrollPane8;
-    private javax.swing.JTextPane jTextPane1;
     private javax.swing.JTextPane jTextPane2;
     private javax.swing.JTextPane jTextPane6;
     private javax.swing.JTextPane jTextPane7;
