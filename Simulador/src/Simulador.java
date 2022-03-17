@@ -25,7 +25,7 @@ import javax.swing.border.Border;
 
 /**
  *
- * @author gonzc
+ * @author gonzc y diego
  */
 public class Simulador extends javax.swing.JFrame {
      ImagenFondo fondo = new ImagenFondo();
