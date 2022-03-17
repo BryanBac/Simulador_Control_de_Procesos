@@ -13,6 +13,7 @@ import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.Border;
 
@@ -24,7 +25,7 @@ import javax.swing.border.Border;
 
 /**
  *
- * @author gonzc
+ * @author gonzc y diego
  */
 public class Simulador extends javax.swing.JFrame {
      ImagenFondo fondo = new ImagenFondo();
@@ -36,6 +37,14 @@ public class Simulador extends javax.swing.JFrame {
      Integer processID=0;
      Integer processIDIndividual=0;
      JLabel memoriaPrincipal = new JLabel("");
+     
+     /*****************************Variables Diego******************************/
+     
+     int alto = 100;
+     int bajo = 350;
+     int NP = 350;
+     int min = 350;
+      
     /**
      * Creates new form Simulador
      */
@@ -90,15 +99,89 @@ public String ObtenerHora(){
                 }
         }
  }
- public void Eliminar(int ID){
-    JLabel x = listaLabel.get(ID);//Obtiene el JLabel del proceso, de la lista de JLabels
-    x.setBounds(200, listaProcesos.get(ID).getPosicion(), 80, listaProcesos.get(ID).getTamañoEnPix());
-    System.out.println("Componente: " + x.getText());//Muestra el nombre del proceso a eliminar --> esto luego se puede eliminar mientras es solo
-    //para comprobación, porque al final esto se refleja en el historial
-    this.jPanel1.remove(x);//Finalmente se elimina de la memoria principal el proceso
-    this.historial.setText(this.historial.getText()+"P"+ID+ " finalizado a las " + this.ObtenerHora()+ " hrs\n");
-    processID--;
- }
+ 
+ 
+    public int VerificarCreacion(int tp) {
+        int tproceso = tp;
+        int espacio;
+        int espacio2;
+        int aux;
+        //Verificamos si la lista está vacía, si está creamos el proceso
+        if (listaProcesos.size() == 0) {
+            NP = NP - tproceso;
+            System.out.println("t proce " + tproceso +" Np "+NP);
+            //SI PERMITE
+            return 1;
+        } //Si no está vacia
+        else {
+            min = listaProcesos.get(0).getMin();
+            System.out.println(NP +" "+ min);
+            //Verificar si NP es menor que minimo
+            if (NP < min) {
+                //Verificar que el espacio disponible entre alto y NP sea suficiente para el proceso
+                espacio = NP - alto;
+                if (espacio >= tproceso) {
+                    //Actualizar NP
+                    NP = NP - tproceso;
+                    //SI PERMITE
+                    return 1;
+                } else { //Si el espacio entre alto y NP no es suficiente se debe verificar en la parte de bajo
+                    aux = NP;
+                    //Actualizamos NP y lo pasamos a bajo
+                    NP = bajo;
+                    //Si NP es igual a minimo significa que no hay espacio
+                    if (NP == min) {
+                        System.out.println("Error 1");
+                        //NO PERMITE
+                        return 0;
+                    } //Sino verifica que min sea menor a NP
+                    else if (min < NP) {
+                        //Verificar que el espacio disponible entre NP y min sea suficiente para el proceso
+                        espacio2 = NP - min;
+                        if (espacio2 > tproceso) {
+                            NP = NP - tproceso;
+                            //SI PERMITE
+                            return 1;
+                        } else {
+                            //NP regresa a su posicion anterior
+                            NP = aux;
+                            System.out.println("Error 2");
+                            //NO PERMITE
+                            return 0;
+                        }
+                    }
+                }
+            } //Significa que NP es mayor a min
+            else {
+                //Verificar que el espacio disponible entre NP y min sea suficiente para el proceso
+                espacio2 = NP - min;
+                if (espacio2 > tproceso) {
+                    NP = NP - tproceso;
+                    //SI PERMITE
+                    return 1;
+                } else {
+                    System.out.println("Error 3");
+                    //NO PERMITE
+                    return 0;
+                }
+            }
+
+        }
+        return 0;
+    }
+    // falta mucho que componer acá, en especial con los indices.
+    public void Eliminar(int ID) {
+        JLabel x = listaLabel.get(ID);//Obtiene el JLabel del proceso, de la lista de JLabels
+        x.setBounds(200, listaProcesos.get(ID).getPosicion(), 80, listaProcesos.get(ID).getTamañoEnPix());
+        System.out.println("Componente: " + x.getText());//Muestra el nombre del proceso a eliminar --> esto luego se puede eliminar mientras es solo
+        //para comprobación, porque al final esto se refleja en el historial
+        this.jPanel1.remove(x);//Finalmente se elimina de la memoria principal el proceso
+        this.historial.setText(this.historial.getText() + "P" + ID + " finalizado a las " + this.ObtenerHora() + " hrs\n");
+        this.listaProcesos.remove(ID);
+        min=this.listaProcesos.get(0).getMin();
+        System.out.println(NP +" "+min  + " " + this.listaProcesos.get(0).getProcessID());
+        processID--;
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -342,28 +425,36 @@ public String ObtenerHora(){
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        Proceso pr= new Proceso(0); // aquí debería ir el actual que vas a agregar Diego, en lugar de cero.
+        Proceso pr= new Proceso(NP); // aquí debería ir el actual que vas a agregar Diego, en lugar de cero.
         pr.setProcessID(processIDIndividual);
         // y si toca eliminar uno solo buscamos en la lista cual processID es igual y lo sacamos,
         //Actualizar el contador
         // luego cambiamso los demás process Id de la lista (los que van despues del que sacamos) y  ya
-        this.listaProcesos.add(pr);
-        JLabel y = new JLabel("ProcessID: "+processIDIndividual.toString());
-        nuevaPosición=nuevaPosición-listaProcesos.get(processID).getTamañoEnPix();
-        y.setBounds(200,nuevaPosición, 80, listaProcesos.get(processID).getTamañoEnPix());
-        this.jPanel1.add(y);
-        y.setBorder(border);
-        listaLabel.add(y);
-        listaProcesos.get(processID).setPosicion(nuevaPosición+listaProcesos.get(processID).getTamañoEnPix());
-        //Registra en el historial
-        this.historial.setText(this.historial.getText()+"P"+processIDIndividual+ " creado a las " + this.ObtenerHora()+ " hrs\n");
-        processID++;
-        processIDIndividual++;
+        
+        if (VerificarCreacion(pr.getTamañoEnPix()) == 1) {
+            this.listaProcesos.add(pr);
+            JLabel y = new JLabel("ProcessID: " + processIDIndividual.toString());
+            //nuevaPosición=nuevaPosición-listaProcesos.get(processID).getTamañoEnPix();
+            y.setBounds(200, NP, 80, listaProcesos.get(processID).getTamañoEnPix());
+            this.jPanel1.add(y);
+            y.setBorder(border);
+            listaLabel.add(y);
+            listaProcesos.get(processID).setPosicion(NP + listaProcesos.get(processID).getTamañoEnPix());
+            //Registra en el historial
+            this.historial.setText(this.historial.getText() + "P" + processIDIndividual + " creado a las " + this.ObtenerHora() + " hrs\n");
+            processID++;
+            processIDIndividual++;
+        }
+        else{
+            JOptionPane.showMessageDialog(this, "ERROR");
+        }
+        
+        
     }//GEN-LAST:event_jButton1ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-        this.Eliminar(3);//El botón al final se debe eliminar, esto solomente se implemento temporalmente
+        this.Eliminar(0);//El botón al final se debe eliminar, esto solomente se implemento temporalmente
         //la funcionalidad de "Eliminar" se verá en el algoritmo, el cual controlará si el proceso ya finalizo y 
         //en caso de ser afirmativo, es que se hará uso del método, enviandole el ID del proceso a eliminar
     }//GEN-LAST:event_jButton2ActionPerformed
