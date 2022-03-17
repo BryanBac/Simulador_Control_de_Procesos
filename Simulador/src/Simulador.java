@@ -25,7 +25,7 @@ import javax.swing.border.Border;
 
 /**
  *
- * @author gonzc y diego
+ * @author gonzc
  */
 public class Simulador extends javax.swing.JFrame {
      ImagenFondo fondo = new ImagenFondo();
@@ -37,7 +37,9 @@ public class Simulador extends javax.swing.JFrame {
      Integer processID=0;
      Integer processIDIndividual=0;
      JLabel memoriaPrincipal = new JLabel("");
-     
+     // variable para eliminar
+     int contElim = 0;
+    
      /*****************************Variables Diego******************************/
      
      int alto = 100;
@@ -64,6 +66,10 @@ public class Simulador extends javax.swing.JFrame {
        HiloHora hilohora = new HiloHora();
        hilohora.startRunning();
        hilohora.start();
+       //hilo eliminar
+       HiloEliminar elimiHilo = new HiloEliminar();
+       elimiHilo.startRunning();
+       elimiHilo.start();
        memoriaPrincipal.setBounds(200,100, 80, 250);
        this.jPanel1.add(memoriaPrincipal);
        memoriaPrincipal.setBorder(borderM);
@@ -99,15 +105,74 @@ public String ObtenerHora(){
                 }
         }
  }
+    public class HiloEliminar extends Thread {
+
+        private boolean run = false;
+
+        public void startRunning() {
+            run = true;
+        }
+
+        public void stopRunning() {
+            run = false;
+        }
+
+        @Override
+        public void run() {
+            while (run) {
+                //Actualizar hora
+                if (listaProcesos.size() != 0) {
+                    // imprimir proceso actual
+                    if (listaProcesos.get(contElim).reducir()) {
+                        System.out.println("si se elimina");
+                        JLabel x = listaLabel.get(contElim);//Obtiene el JLabel del proceso, de la lista de JLabels
+                        x.setBounds(200, listaProcesos.get(contElim).getPosicion(), 80, listaProcesos.get(contElim).getTamañoEnPix());
+                        System.out.println("Componente: " + x.getText());//Muestra el nombre del proceso a eliminar --> esto luego se puede eliminar mientras es solo
+                        //para comprobación, porque al final esto se refleja en el historial
+                        jPanel1.remove(x);//Finalmente se elimina de la memoria principal el proceso
+                        listaLabel.remove(contElim);
+                        historial.setText(historial.getText() + "P" + contElim + " finalizado a las " + ObtenerHora() + " hrs\n");
+                        listaProcesos.remove(contElim);
+                        if(listaProcesos.size()>0) min = listaProcesos.get(0).getMin();
+                        //System.out.println(NP + " " + min + " " + listaProcesos.get(0).getProcessID());
+                        processID--;
+                        if (contElim >= listaProcesos.size()) {
+                            contElim = 0;
+                        } // no creo que sea necesario cambiar el contElim si sí se eliminó.
+                        System.out.println("ContElim: " + contElim + " ListSize: " + listaProcesos.size());
+                    } else {
+                        System.out.println("No se eliminó");
+                        contElim++;
+                        if (contElim == listaProcesos.size()) {
+                            contElim = 0;
+                        }
+                    }
+                }
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Simulador.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Simulador.class.getName()).log(Level.SEVERE, null, ex);
+            }
+        }
+    }
  
- 
-    public int VerificarCreacion(int tp) {
+  public int VerificarCreacion(int tp) {
         int tproceso = tp;
         int espacio;
         int espacio2;
         int aux;
         //Verificamos si la lista está vacía, si está creamos el proceso
         if (listaProcesos.size() == 0) {
+            alto = 100;
+            bajo = 350;
+            NP = 350;
+            min = 350;
             NP = NP - tproceso;
             System.out.println("t proce " + tproceso +" Np "+NP);
             //SI PERMITE
@@ -169,13 +234,14 @@ public String ObtenerHora(){
         }
         return 0;
     }
-    // falta mucho que componer acá, en especial con los indices.
+    // falta mucho que componer acá, en especial con los indices
     public void Eliminar(int ID) {
         JLabel x = listaLabel.get(ID);//Obtiene el JLabel del proceso, de la lista de JLabels
         x.setBounds(200, listaProcesos.get(ID).getPosicion(), 80, listaProcesos.get(ID).getTamañoEnPix());
         System.out.println("Componente: " + x.getText());//Muestra el nombre del proceso a eliminar --> esto luego se puede eliminar mientras es solo
         //para comprobación, porque al final esto se refleja en el historial
         this.jPanel1.remove(x);//Finalmente se elimina de la memoria principal el proceso
+        this.listaLabel.remove(ID);
         this.historial.setText(this.historial.getText() + "P" + ID + " finalizado a las " + this.ObtenerHora() + " hrs\n");
         this.listaProcesos.remove(ID);
         min=this.listaProcesos.get(0).getMin();
@@ -214,7 +280,6 @@ public String ObtenerHora(){
         jLabel1 = new javax.swing.JLabel();
         HoraSistema = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -381,13 +446,6 @@ public String ObtenerHora(){
                 .addGap(24, 24, 24))
         );
 
-        jButton2.setText("Eliminar (mientras)");
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton2ActionPerformed(evt);
-            }
-        });
-
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -396,11 +454,7 @@ public String ObtenerHora(){
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jButton1)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGap(34, 34, 34)
-                        .addComponent(jButton2)))
+                .addComponent(jButton1)
                 .addGap(10, 10, 10)
                 .addComponent(panelProcesador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(20, Short.MAX_VALUE))
@@ -411,14 +465,12 @@ public String ObtenerHora(){
                 .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelProcesador, javax.swing.GroupLayout.PREFERRED_SIZE, 0, Short.MAX_VALUE))
+                    .addComponent(panelProcesador, javax.swing.GroupLayout.PREFERRED_SIZE, 479, Short.MAX_VALUE))
                 .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                 .addContainerGap(221, Short.MAX_VALUE)
                 .addComponent(jButton1)
-                .addGap(18, 18, 18)
-                .addComponent(jButton2)
-                .addGap(212, 212, 212))
+                .addGap(253, 253, 253))
         );
 
         pack();
@@ -451,13 +503,6 @@ public String ObtenerHora(){
         
         
     }//GEN-LAST:event_jButton1ActionPerformed
-
-    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
-        this.Eliminar(0);//El botón al final se debe eliminar, esto solomente se implemento temporalmente
-        //la funcionalidad de "Eliminar" se verá en el algoritmo, el cual controlará si el proceso ya finalizo y 
-        //en caso de ser afirmativo, es que se hará uso del método, enviandole el ID del proceso a eliminar
-    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -498,7 +543,6 @@ public String ObtenerHora(){
     private javax.swing.JLabel HoraSistema;
     private javax.swing.JTextArea historial;
     private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

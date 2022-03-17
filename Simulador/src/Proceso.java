@@ -30,7 +30,7 @@ public class Proceso extends JLabel{
         this.tamaño = tiempo*50; // el tamaño va a ser en MB y el maximo de la memoria principal es de 4 GB
         this.hexadecimal= Integer.toHexString(this.tamaño);
         this.min=min;
-        this.max=min+tamaño;
+        this.max=min-tamaño;
     }
 
     public Integer getMin() {
