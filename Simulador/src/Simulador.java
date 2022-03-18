@@ -10,10 +10,12 @@ import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.UIManager;
 import javax.swing.border.Border;
 
 /*
@@ -30,8 +32,11 @@ public class Simulador extends javax.swing.JFrame {
      ImagenFondo fondo = new ImagenFondo();
      ArrayList<Proceso> listaProcesos = new ArrayList();
      ArrayList<JLabel> listaLabel = new ArrayList();
+     ArrayList<JLabel> listaLabelLimite = new ArrayList();
+     ArrayList<JLabel> listaLabelBase = new ArrayList();
      Border border = BorderFactory.createLineBorder(Color.ORANGE);
      Border borderM = BorderFactory.createLineBorder(Color.WHITE);
+     Border borderI = BorderFactory.createLineBorder(Color.PINK);
      int nuevaPosición=350; //este es el punto inicial de altura donde spamean los cuadraditos
      Integer processID=0;
      Integer processIDIndividual=0;
@@ -49,7 +54,11 @@ public class Simulador extends javax.swing.JFrame {
      int bajo = 350;
      int NP = 350;
      int min = 350;
-      
+     //Agragar etiqueta de instruccion
+     JLabel v = new JLabel("");
+     JLabel recorrido = new JLabel("");
+     int ejey;
+     int variacion=0;
     /**
      * Creates new form Simulador
      */
@@ -128,18 +137,23 @@ public class Simulador extends javax.swing.JFrame {
                             instruccion = inicio+(tiempoEjecucion*3);           //Calcula la posición de la siguiente instrucción
                             jTextPane6.setText(Integer.toHexString(instruccion));
                             tiempoEjecucion--;
+                            Recorrer();
                             try {
                                 Thread.sleep(1000);
                             } catch (InterruptedException ex) {
                                 Logger.getLogger(Simulador.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
+                        EliminarEtiquetas();
                         Eliminar();
+                        v.setVisible(false);
+                        recorrido.setVisible(false);
                     }//El tiempo de ejecución restante es mayor al quantum
                     else{
                         for (int i = 0; i < quantum; i++) {
                             instruccion = inicio+(tiempoEjecucion*3);
                             jTextPane6.setText(Integer.toHexString(instruccion));
+                            Recorrer();
                             tiempoEjecucion--;
                             try {
                                 Thread.sleep(1000);
@@ -262,6 +276,45 @@ public class Simulador extends javax.swing.JFrame {
         //System.out.println(NP + " " + min + " " + listaProcesos.get(0).getProcessID());
         processID--;
     }
+     public void EliminarEtiquetas(){
+       listaLabelBase.get(contElim).setVisible(false);
+       listaLabelBase.remove(contElim);
+       listaLabelLimite.get(contElim).setVisible(false);
+       listaLabelLimite.remove(contElim);//Finalmente se eliminan
+    }
+    public void Error(){
+        UIManager.put("control", new Color(87,20,100));
+        UIManager.put("nimbusBase", new Color(87, 20, 100));
+        String ms1= "<html><p style = \"color:white; font:15px; \">  Error</p></html>";
+        JOptionPane.showMessageDialog(null, ms1, " ",JOptionPane.ERROR_MESSAGE);
+    }
+    public void Recorrer(){
+        //Etiqueta de instruccion
+        //Actualizar en la memoria principal la label del de instrucción en ejecucion
+        if(!listaProcesos.get(contElim).getCalculado()){
+        int lim1 = listaProcesos.get(contElim).getPosicion()-listaProcesos.get(contElim).getTamañoEnPix();//Limite
+        int lim2 = listaProcesos.get(contElim).getPosicion()-21;//Base
+        int tamañoReal = lim2-lim1;
+        int intervalo = tamañoReal/listaProcesos.get(contElim).getTiempo();
+        listaProcesos.get(contElim).setCalculado(true);
+        listaProcesos.get(contElim).setVariacion(intervalo);
+        listaProcesos.get(contElim).setAltura(listaProcesos.get(contElim).getPosicion()-8);
+        }
+        variacion = listaProcesos.get(contElim).getAltura()-listaProcesos.get(contElim).getVariacion();//Moviliza la barra y etiqueta conforme
+        listaProcesos.get(contElim).setAltura(variacion);                                               //se ejecuten las instrucciones
+        v.setBounds(280, listaProcesos.get(contElim).getAltura() , 30, 20);
+        v.setText(Integer.toHexString(instruccion));
+        v.setVisible(true);
+        jPanel1.add(v);
+        //barra de recorrido
+        recorrido.setBounds(200, listaProcesos.get(contElim).getAltura(), 80, 10);
+        recorrido.setVisible(true);
+        ImageIcon imagen = new ImageIcon("src/Imagenes/1.jpg");
+        Icon icono = new ImageIcon(imagen.getImage().getScaledInstance(90, 90, Image.SCALE_DEFAULT));
+        recorrido.setBackground(Color.CYAN);
+        recorrido.setIcon(icono);
+        jPanel1.add(recorrido);
+    }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -275,6 +328,9 @@ public class Simulador extends javax.swing.JFrame {
         jPanel1 = new ImagenRobot();
         jLabel9 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
+        jLabel10 = new javax.swing.JLabel();
+        jLabel11 = new javax.swing.JLabel();
+        jLabel12 = new javax.swing.JLabel();
         panelProcesador = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         jScrollPane2 = new javax.swing.JScrollPane();
@@ -310,33 +366,58 @@ public class Simulador extends javax.swing.JFrame {
 
         jLabel9.setBackground(new java.awt.Color(255, 255, 255));
         jLabel9.setFont(new java.awt.Font("Calibri Light", 0, 14)); // NOI18N
-        jLabel9.setText("Activador");
+        jLabel9.setText("    Activador");
+        jLabel9.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
 
         jLabel8.setFont(new java.awt.Font("Calibri Light", 1, 14)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(255, 255, 255));
         jLabel8.setText("Memoria principal");
+
+        jLabel10.setBackground(new java.awt.Color(255, 255, 255));
+        jLabel10.setFont(new java.awt.Font("Calibri Light", 0, 18)); // NOI18N
+        jLabel10.setText("       S.O.");
+        jLabel10.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(255, 255, 255)));
+
+        jLabel11.setFont(new java.awt.Font("Tahoma", 0, 8)); // NOI18N
+        jLabel11.setText("0x0000h");
+
+        jLabel12.setFont(new java.awt.Font("Tahoma", 0, 8)); // NOI18N
+        jLabel12.setText("0x00FFh");
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
-                .addContainerGap(161, Short.MAX_VALUE)
+                .addContainerGap(166, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                         .addComponent(jLabel8)
-                        .addGap(55, 55, 55))
+                        .addGap(34, 34, 34))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
-                        .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 63, javax.swing.GroupLayout.PREFERRED_SIZE)
-                        .addGap(63, 63, 63))))
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel11)
+                            .addComponent(jLabel12))
+                        .addGap(6, 6, 6)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 80, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(42, 42, 42))))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addComponent(jLabel8)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jLabel9)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(50, 50, 50)
+                .addComponent(jLabel9, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(248, 248, 248)
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jLabel10, javax.swing.GroupLayout.PREFERRED_SIZE, 33, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addComponent(jLabel12)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel11)))
+                .addContainerGap(80, Short.MAX_VALUE))
         );
 
         panelProcesador.setBackground(new java.awt.Color(153, 153, 255));
@@ -402,30 +483,30 @@ public class Simulador extends javax.swing.JFrame {
                             .addComponent(jLabel1))))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelProcesadorLayout.createSequentialGroup()
-                .addGap(0, 64, Short.MAX_VALUE)
+                .addGap(0, 0, Short.MAX_VALUE)
                 .addComponent(jLabel5)
                 .addGap(59, 59, 59))
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelProcesadorLayout.createSequentialGroup()
                 .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addGroup(panelProcesadorLayout.createSequentialGroup()
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                        .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel6, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 53, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addGroup(panelProcesadorLayout.createSequentialGroup()
-                                .addComponent(jLabel4)
-                                .addGap(12, 12, 12)))
-                        .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jScrollPane7, javax.swing.GroupLayout.DEFAULT_SIZE, 86, Short.MAX_VALUE)
-                            .addComponent(jScrollPane8)))
                     .addGroup(panelProcesadorLayout.createSequentialGroup()
                         .addGap(0, 0, Short.MAX_VALUE)
                         .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                                 .addComponent(jLabel2)
-                                .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                    .addComponent(jLabel3))))))
+                                .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel3))))
+                    .addGroup(panelProcesadorLayout.createSequentialGroup()
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jLabel4)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, panelProcesadorLayout.createSequentialGroup()
+                        .addGap(29, 29, 29)
+                        .addComponent(jLabel6, javax.swing.GroupLayout.PREFERRED_SIZE, 39, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, 86, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addGap(80, 80, 80))
         );
         panelProcesadorLayout.setVerticalGroup(
@@ -433,25 +514,23 @@ public class Simulador extends javax.swing.JFrame {
             .addGroup(panelProcesadorLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(jLabel2)
-                .addGap(30, 30, 30)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel3)
-                .addGap(1, 1, 1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jScrollPane6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jLabel4)
-                    .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(panelProcesadorLayout.createSequentialGroup()
-                        .addGap(15, 15, 15)
-                        .addComponent(jLabel6))
-                    .addGroup(panelProcesadorLayout.createSequentialGroup()
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                        .addGroup(panelProcesadorLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jScrollPane7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(jLabel4))
+                        .addGap(8, 8, 8)
+                        .addComponent(jScrollPane8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel6))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel7)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
@@ -468,26 +547,29 @@ public class Simulador extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addContainerGap(11, Short.MAX_VALUE)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jButton1)
                 .addGap(10, 10, 10)
                 .addComponent(panelProcesador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(20, Short.MAX_VALUE))
+                .addContainerGap(23, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                    .addComponent(panelProcesador, javax.swing.GroupLayout.PREFERRED_SIZE, 479, Short.MAX_VALUE))
-                .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(221, Short.MAX_VALUE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jButton1)
                 .addGap(253, 253, 253))
+            .addGroup(layout.createSequentialGroup()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(panelProcesador, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addGroup(layout.createSequentialGroup()
+                        .addGap(36, 36, 36)
+                        .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         pack();
@@ -511,11 +593,26 @@ public class Simulador extends javax.swing.JFrame {
             listaProcesos.get(processID).setPosicion(NP + listaProcesos.get(processID).getTamañoEnPix());
             //Registra en el historial
             this.historial.setText(this.historial.getText() + "P" + processIDIndividual + " creado a las " + this.ObtenerHora() + " hrs\n");
-            processID++;
             processIDIndividual++;
+            //Etiquetas
+            //Agregar étiqueta limite
+            inicio = listaProcesos.get(processID).getPosicion();         //Obtiene la posición del inicio del proceso 
+            JLabel z = new JLabel(""+ Integer.toHexString(inicio));
+            z.setBounds(170,listaProcesos.get(processID).getPosicion()-listaProcesos.get(processID).getTamañoEnPix(), 30, 20);
+            jPanel1.add(z);
+            z.setBorder(borderI);
+            listaLabelLimite.add(z);
+            //Agregar la etiquetabase
+            inicio = inicio - ((listaProcesos.get(processID).getTamaño()/50)*3);  //Obtiene la posición del fin del proceso   
+            JLabel w = new JLabel(""+ Integer.toHexString(inicio));
+            w.setBounds(170,listaProcesos.get(processID).getPosicion()-21, 30, 20);
+            jPanel1.add(w);
+            w.setBorder(borderI);
+            listaLabelBase.add(w);
+            processID++;
         }
         else{
-            JOptionPane.showMessageDialog(this, "ERROR");
+            this.Error();
         }
         
         
@@ -561,6 +658,9 @@ public class Simulador extends javax.swing.JFrame {
     private javax.swing.JTextArea historial;
     private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
+    private javax.swing.JLabel jLabel10;
+    private javax.swing.JLabel jLabel11;
+    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;

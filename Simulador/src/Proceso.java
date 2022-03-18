@@ -16,7 +16,34 @@ public class Proceso extends JLabel{
     private Integer tamaño, tiempo, min, max,processID;
     private String hexadecimal;
     private int posicion;
-   private boolean ignorar = false;
+   int variacion;
+   int altura=0;
+   boolean calculado = false;
+
+    public int getAltura() {
+        return altura;
+    }
+
+    public void setAltura(int altura) {
+        this.altura = altura;
+    }
+
+    public void setCalculado(boolean calculado) {
+        this.calculado = calculado;
+    }
+
+    public boolean getCalculado() {
+        return calculado;
+    }
+
+    public void setVariacion(int variacion) {
+        this.variacion = variacion;
+    }
+
+    public int getVariacion() {
+        return variacion;
+    }
+   
     public int getPosicion() {
         return posicion;
     }
@@ -27,7 +54,7 @@ public class Proceso extends JLabel{
     public Proceso(Integer min) {
         // los procesos van de 6 ms a 20 ms
         this.tiempo = (int)(Math.random()*20.0+6.0);
-        this.tamaño = tiempo*50; // el tamaño va a ser en MB y el maximo de la memoria principal es de 4 GB
+        this.tamaño = tiempo*90; // el tamaño va a ser en MB y el maximo de la memoria principal es de 4 GB
         this.hexadecimal= Integer.toHexString(this.tamaño);
         this.min=min;
         this.max=min-tamaño;
