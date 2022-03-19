@@ -202,13 +202,11 @@ public class Simulador extends javax.swing.JFrame {
             NP = 350;
             min = 350;
             NP = NP - tproceso;
-            System.out.println("t proce " + tproceso +" Np "+NP);
             //SI PERMITE
             return 1;
         } //Si no está vacia
         else {
             min = listaProcesos.get(0).getMin();
-            System.out.println(NP +" "+ min);
             //Verificar si NP es menor que minimo
             if (NP < min) {
                 //Verificar que el espacio disponible entre alto y NP sea suficiente para el proceso
@@ -224,7 +222,6 @@ public class Simulador extends javax.swing.JFrame {
                     NP = bajo;
                     //Si NP es igual a minimo significa que no hay espacio
                     if (NP == min) {
-                        System.out.println("Error 1");
                         //NO PERMITE
                         return 0;
                     } //Sino verifica que min sea menor a NP
@@ -238,7 +235,6 @@ public class Simulador extends javax.swing.JFrame {
                         } else {
                             //NP regresa a su posicion anterior
                             NP = aux;
-                            System.out.println("Error 2");
                             //NO PERMITE
                             return 0;
                         }
@@ -253,7 +249,6 @@ public class Simulador extends javax.swing.JFrame {
                     //SI PERMITE
                     return 1;
                 } else {
-                    System.out.println("Error 3");
                     //NO PERMITE
                     return 0;
                 }
@@ -264,8 +259,6 @@ public class Simulador extends javax.swing.JFrame {
     }
     // falta mucho que componer acá, en especial con los indices
     public void Eliminar() {
-        System.out.println("si se elimina");
-        System.out.println("ContElim: " + listaProcesos.get(contElim).getProcessID() + " ListSize: " + listaProcesos.size());
         historial.setText(historial.getText() + "P" + listaProcesos.get(contElim).getProcessID() + " finalizado a las " + ObtenerHora() + " hrs\n");
         JLabel x = listaLabel.get(contElim);//Obtiene el JLabel del proceso, de la lista de JLabels
         x.setBounds(200, listaProcesos.get(contElim).getPosicion(), 80, listaProcesos.get(contElim).getTamañoEnPix());
